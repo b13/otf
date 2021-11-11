@@ -14,7 +14,6 @@ namespace B13\Otf\Backend\Form\FieldWizard;
 
 use B13\Otf\SupportedEvaluations;
 use TYPO3\CMS\Backend\Form\AbstractNode;
-use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**

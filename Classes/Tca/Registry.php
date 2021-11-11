@@ -55,7 +55,8 @@ class Registry
             // Add evaluations
             if ($field->getEvaluationsToAdd() !== []) {
                 $tableColumns[$fieldName]['config']['eval'] = implode(',', array_unique(array_merge(
-                    GeneralUtility::trimExplode(',', $tableColumns[$fieldName]['config']['eval'] ?? '', true), $field->getEvaluationsToAdd()
+                    GeneralUtility::trimExplode(',', $tableColumns[$fieldName]['config']['eval'] ?? '', true),
+                    $field->getEvaluationsToAdd()
                 )));
             }
             // Remove evaluations
