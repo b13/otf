@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.2">
+	<file source-language="en" datatype="plaintext" original="messages" date="2021-11-11T21:51:05Z" product-name="otf">
+		<header/>
+		<body>
+			<trans-unit id="evaluationHint.unique" resname="evaluationHint.unique">
+				<source>The field has to be unique and will therefore be changed to %s on saving.</source>
+			</trans-unit>
+			<trans-unit id="evaluationHint.uniqueInPid" resname="evaluationHint.uniqueInPid">
+				<source>The field has to be unique on this page and will therefore be changed to %s on saving.</source>
+			</trans-unit>
+			<trans-unit id="evaluationHint.email" resname="evaluationHint.email">
+				<source>%s is not a valid e-mail address and will therefore be rejected on saving.</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

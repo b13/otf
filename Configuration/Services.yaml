@@ -1,0 +1,23 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  B13\Otf\:
+    resource: '../Classes/*'
+
+  B13\Otf\Backend\Controller\OtfAjaxController:
+    tags: ['backend.controller']
+
+  unique.evaluation:
+    class: 'B13\Otf\Evaluation\UniqueEvaluation'
+    public: true
+
+  uniqueInPid.evaluation:
+    class: 'B13\Otf\Evaluation\UniqueEvaluation'
+    public: true
+
+  email.evaluation:
+    class: 'B13\Otf\Evaluation\EmailEvaluation'
+    public: true

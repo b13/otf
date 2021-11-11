@@ -1,0 +1,12 @@
+.Build/
+Build/phpunit/.phpunit.result.cache
+Build/testing-docker/.env
+var/
+composer.lock
+Thumbs.db
+.DS_Store
+.php_cs.cache
+.env
+config
+.idea
+Configuration/TCA/Overrides

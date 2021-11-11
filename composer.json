@@ -1,0 +1,37 @@
+{
+  "name": "b13/otf",
+  "description": "Provides on-the-fly evaluation hints for FormEngine",
+  "type": "typo3-cms-extension",
+  "homepage": "https://b13.com",
+  "license": ["GPL-2.0-or-later"],
+  "authors": [
+    {
+      "name": "Oliver Bartsch",
+      "email": "oliver.bartsch@b13.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.2.0",
+    "typo3/cms-core": "^10.4 || ^11.0",
+    "typo3/cms-backend": "^10.4 || ^11.0"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-master",
+	  "typo3/coding-standards": "^0.2.0"
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "otf"
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "B13\\Otf\\": "Classes/"
+    }
+  },
+  "scripts": {
+	"cs": [
+		"@php vendor/bin/php-cs-fixer fix --dry-run --diff --diff-format=udiff --config=vendor/typo3/coding-standards/templates/extension_php_cs.dist Classes/"
+	]
+  }
+}
