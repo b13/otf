@@ -15,7 +15,7 @@ namespace B13\Otf\Evaluation;
 /**
  * Registry for evaluations
  */
-final class EvaluationRegistry
+class EvaluationRegistry
 {
     /**
      * @var EvaluationInterface[]
