@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace B13\Otf\Backend\Form\FieldWizard;
 
-use B13\Otf\SupportedEvaluations;
+use B13\Otf\Evaluation\EvaluationRegistry;
 use TYPO3\CMS\Backend\Form\AbstractNode;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -41,7 +41,7 @@ class OtfWizard extends AbstractNode
         // Remove all unsupported evaluations
         $evaluations = array_intersect(
             GeneralUtility::trimExplode(',', $fieldConfig['config']['eval'], true),
-            SupportedEvaluations::getConstants()
+            GeneralUtility::makeInstance(EvaluationRegistry::class)->getSupportedEvaluationNames()
         );
 
         // Check whether evaluation hints can be displayed for the current record

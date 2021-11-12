@@ -5,8 +5,11 @@ var/
 composer.lock
 Thumbs.db
 .DS_Store
-.php_cs.cache
+.php-cs-fixer.cache
 .env
 config
 .idea
 Configuration/TCA/Overrides
+.ddev/
+vendor/
+public/

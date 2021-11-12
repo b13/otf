@@ -12,10 +12,24 @@ declare(strict_types=1);
 
 namespace B13\Otf\Evaluation;
 
+/**
+ * Interface for evaluation services. This must be implemented
+ * to get the services automatically tagged and registered.
+ */
 interface EvaluationInterface
 {
     /**
      * Evaluation of a field, either returns an evaluation hint or NULL
      */
     public function __invoke(EvaluationSettings $evaluationSettings): ?EvaluationHint;
+
+    /**
+     * Whether the evaluation service can handle the given evaluation name
+     */
+    public function canHandle(string $evaluation): bool;
+
+    /**
+     * Returns the supported evaluation names for this service
+     */
+    public function getSupportedEvaluationNames(): array;
 }

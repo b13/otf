@@ -18,8 +18,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Evaluation for "email"
  */
-class EmailEvaluation implements EvaluationInterface
+class EmailEvaluation extends AbstractEvaluation
 {
+    protected $supportedEvaluationNames = ['email'];
+
     public function __invoke(EvaluationSettings $evaluationSettings): ?EvaluationHint
     {
         $value = (string)$evaluationSettings->getParameter('value', '');

@@ -22,8 +22,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Evaluation for "unique" and "uniqueInPid"
  */
-class UniqueEvaluation implements EvaluationInterface
+class UniqueEvaluation extends AbstractEvaluation
 {
+    protected $supportedEvaluationNames = ['unique', 'uniqueInPid'];
+
     public function __invoke(EvaluationSettings $evaluationSettings): ?EvaluationHint
     {
         $evaluation = $evaluationSettings->getEvaluation();

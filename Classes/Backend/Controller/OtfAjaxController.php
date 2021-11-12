@@ -13,9 +13,8 @@ declare(strict_types=1);
 namespace B13\Otf\Backend\Controller;
 
 use B13\Otf\Evaluation\EvaluationHint;
+use B13\Otf\Evaluation\EvaluationRegistry;
 use B13\Otf\Evaluation\EvaluationSettings;
-use B13\Otf\SupportedEvaluations;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -31,11 +30,6 @@ use Psr\Http\Message\StreamFactoryInterface;
 class OtfAjaxController
 {
     /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
      * @var ResponseFactoryInterface
      */
     protected $responseFactory;
@@ -46,20 +40,18 @@ class OtfAjaxController
     protected $streamFactory;
 
     /**
-     * @var SupportedEvaluations
+     * @var EvaluationRegistry
      */
-    protected $supportedEvaluations;
+    protected $evaluationRegistry;
 
     public function __construct(
-        ContainerInterface $container,
         ResponseFactoryInterface $responseFactory,
         StreamFactoryInterface $streamFactory,
-        SupportedEvaluations $supportedEvaluations
+        EvaluationRegistry $evaluationRegistry
     ) {
-        $this->container = $container;
         $this->responseFactory = $responseFactory;
         $this->streamFactory = $streamFactory;
-        $this->supportedEvaluations = $supportedEvaluations;
+        $this->evaluationRegistry = $evaluationRegistry;
     }
 
     public function processRequest(ServerRequestInterface $request): ResponseInterface
@@ -80,16 +72,13 @@ class OtfAjaxController
         }
 
         foreach ($evaluations as $evaluation) {
-            if (!$this->supportedEvaluations->isSupported($evaluation)) {
-                continue;
-            }
-            // Check whether a service exists for the requested evaluation
-            $evaluationService = $evaluation . '.evaluation';
-            if (!$this->container->has($evaluationService)) {
+            $evaluationService = $this->evaluationRegistry->getEvaluationByName($evaluation);
+            if ($evaluationService === null) {
+                // Skip, if no service can handle the evaluation
                 continue;
             }
             // Call the evaluation service with the current evaluation settings
-            $evaluationHint = $this->container->get($evaluationService)(
+            $evaluationHint = $evaluationService(
                 new EvaluationSettings($evaluation, $request->getParsedBody())
             );
             if ($evaluationHint !== null) {

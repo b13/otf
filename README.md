@@ -67,6 +67,14 @@ Currently, following evaluations are supported:
 * `uniqueInPid`
 * `email`
 
+### Registration API
+
+You can register your own evaluation services to handle additional `eval`'s.
+Therefore, create a new evaluation service class which implements the
+`EvaluationInterface`. The class will then automatically be tagged and
+registered. Additionally, you can extend `AbstractEvaluation`, which
+already implements some required methods.
+
 ## Credits
 
 This extension was created by Oliver Bartsch in 2021 for [b13 GmbH, Stuttgart](https://b13.com).

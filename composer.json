@@ -31,7 +31,7 @@
   },
   "scripts": {
 	"cs": [
-		"@php vendor/bin/php-cs-fixer fix --dry-run --diff --config=vendor/typo3/coding-standards/templates/extension_php-cs-fixer.dist.php Classes/"
+      "@php vendor/bin/php-cs-fixer fix --dry-run --diff --config=vendor/typo3/coding-standards/templates/extension_php-cs-fixer.dist.php Classes/"
 	]
   }
 }
