@@ -103,7 +103,7 @@ class UniqueEvaluation extends AbstractEvaluation
             }
 
             return new EvaluationHint(
-                sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.' . $evaluation), $newValue),
+                sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.' . $evaluation), $newValue)
             );
         }
 
