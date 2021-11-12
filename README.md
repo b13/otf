@@ -67,6 +67,13 @@ Currently, following evaluations are supported:
 * `uniqueInPid`
 * `email`
 
+### Administration
+
+The behaviour of the on-the-fly evaluation hints can be confgiured with
+User TSconfig. Following options are available:
+
+* `tx_otf.conflictingRecordLink` - Whether a link to the confliciting record should be displayed (Default: `1`)
+
 ### Registration API
 
 You can register your own evaluation services to handle additional `eval`'s.

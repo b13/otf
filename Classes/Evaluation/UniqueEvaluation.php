@@ -14,6 +14,7 @@ namespace B13\Otf\Evaluation;
 
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
@@ -88,15 +89,21 @@ class UniqueEvaluation extends AbstractEvaluation
         // Return evaluation hint in case the current value is not unique
         if ($originalValue !== $newValue && $conflict) {
             $lang = $this->getLanguageService();
-            $editLink = '
-                <a class="text-white" href="' . htmlspecialchars($this->getEditConflictingRecordLink($table, $conflict, $evaluationSettings->getReturnUrl())) . '">
-                    ' . htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.editConflictingRecord'), $conflict)) . '
-                </a>';
+            $conflictingRecordLink = (bool)($this->getBackendUser()->getTSConfig()['tx_otf.']['conflictingRecordLink'] ?? true);
+
+            if ($conflictingRecordLink) {
+                return new EvaluationHint(
+                    htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.' . $evaluation), $newValue)) .
+                    '<a class="text-white" href="' . htmlspecialchars($this->getEditConflictingRecordLink($table, $conflict, $evaluationSettings->getReturnUrl())) . '">
+                        ' . htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.editConflictingRecord'), $conflict)) . '
+                    </a>',
+                    EvaluationHint::WARNING,
+                    true
+                );
+            }
 
             return new EvaluationHint(
-                htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.' . $evaluation), $newValue)) . $editLink,
-                EvaluationHint::WARNING,
-                true
+                sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.' . $evaluation), $newValue),
             );
         }
 
@@ -184,5 +191,10 @@ class UniqueEvaluation extends AbstractEvaluation
     protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
+    }
+
+    protected function getBackendUser(): BackendUserAuthentication
+    {
+        return $GLOBALS['BE_USER'];
     }
 }
