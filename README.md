@@ -89,14 +89,14 @@ Currently, following evaluations are supported:
 
 ### Administration
 
-The behaviour of the on-the-fly evaluation hints can be confgiured with
+The behaviour of the on-the-fly evaluation hints can be configured with
 User TSconfig. Following options are available:
 
 * `tx_otf.conflictingRecordLink` - Whether a link to the confliciting record should be displayed (Default: `1`)
 
 ### Registration API
 
-You can register your own evaluation services to handle additional `eval`'s.
+You can register your own evaluation services to handle additional `eval`s.
 Therefore, create a new evaluation service class which implements the
 `EvaluationInterface`. The class will then automatically be tagged and
 registered. Additionally, you can extend `AbstractEvaluation`, which
