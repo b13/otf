@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace B13\Otf\Evaluation;
 
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -25,6 +26,16 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class UniqueEvaluation extends AbstractEvaluation
 {
     protected $supportedEvaluationNames = ['unique', 'uniqueInPid'];
+
+    /**
+     * @var UriBuilder
+     */
+    protected $uriBuilder;
+
+    public function __construct(UriBuilder $uriBuilder)
+    {
+        $this->uriBuilder = $uriBuilder;
+    }
 
     public function __invoke(EvaluationSettings $evaluationSettings): ?EvaluationHint
     {
@@ -42,7 +53,8 @@ class UniqueEvaluation extends AbstractEvaluation
         }
 
         $newValue = $originalValue = $value;
-        $queryBuilder = $this->getUniqueCountStatement($newValue, $table, $field, $uid);
+        $conflict = null;
+        $queryBuilder = $this->getUniqueStatement($newValue, $table, $field, $uid);
 
         // Add pid constraint if given and uniqueInPid evaluation
         $pid = $evaluationSettings->getParameter('pid');
@@ -54,9 +66,10 @@ class UniqueEvaluation extends AbstractEvaluation
 
         // Execute statement to find possible conflicts
         $statement = $queryBuilder->execute();
-        if ($statement->fetchColumn()) {
+        if ($row = $statement->fetch()) {
             $counter = 0;
             $isUnique = false;
+            $conflict = (int)$row['uid'];
             // Execute the query with an incremented counter until the next valid value has been found
             while ($isUnique === false) {
                 $newValue = $value . $counter;
@@ -65,7 +78,7 @@ class UniqueEvaluation extends AbstractEvaluation
                 }
                 $statement->bindValue(1, $newValue);
                 $statement->execute();
-                if (!$statement->fetchColumn()) {
+                if (!$statement->fetch()) {
                     $isUnique = true;
                 }
                 $counter++;
@@ -73,12 +86,17 @@ class UniqueEvaluation extends AbstractEvaluation
         }
 
         // Return evaluation hint in case the current value is not unique
-        if ($originalValue !== $newValue) {
+        if ($originalValue !== $newValue && $conflict) {
+            $lang = $this->getLanguageService();
+            $editLink = '
+                <a class="text-white" href="' . htmlspecialchars($this->getEditConflictingRecordLink($table, $conflict, $evaluationSettings->getReturnUrl())) . '">
+                    ' . htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.editConflictingRecord'), $conflict)) . '
+                </a>';
+
             return new EvaluationHint(
-                sprintf(
-                    $this->getLanguageService()->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.' . $evaluation),
-                    $newValue
-                )
+                htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.' . $evaluation), $newValue)) . $editLink,
+                EvaluationHint::WARNING,
+                true
             );
         }
 
@@ -107,7 +125,7 @@ class UniqueEvaluation extends AbstractEvaluation
         return true;
     }
 
-    protected function getUniqueCountStatement(
+    protected function getUniqueStatement(
         string $value,
         string $table,
         string $field,
@@ -116,7 +134,7 @@ class UniqueEvaluation extends AbstractEvaluation
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
         $queryBuilder
-            ->count('uid')
+            ->select('uid')
             ->from($table)
             ->where(
                 $queryBuilder->expr()->eq($field, $queryBuilder->createPositionalParameter($value)),
@@ -143,7 +161,24 @@ class UniqueEvaluation extends AbstractEvaluation
                 );
         }
 
-        return $queryBuilder;
+        return $queryBuilder->setMaxResults(1);
+    }
+
+    protected function getEditConflictingRecordLink(string $table, int $uid, string $returnUrl = ''): string
+    {
+        $parameters = [
+            'edit' => [
+                $table => [
+                    $uid => 'edit',
+                ],
+            ],
+        ];
+
+        if ($returnUrl !== '') {
+            $parameters['returnUrl'] = $returnUrl;
+        }
+
+        return (string)$this->uriBuilder->buildUriFromRoute('record_edit', $parameters);
     }
 
     protected function getLanguageService(): LanguageService

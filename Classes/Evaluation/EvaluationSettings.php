@@ -27,10 +27,16 @@ class EvaluationSettings
      */
     protected $parameters;
 
-    public function __construct(string $evaluation, array $parameters)
+    /**
+     * @var string
+     */
+    protected $returnUrl;
+
+    public function __construct(string $evaluation, array $parameters, string $returnUrl)
     {
         $this->evaluation = $evaluation;
         $this->parameters = $parameters;
+        $this->returnUrl = $returnUrl;
     }
 
     public function getEvaluation(): string
@@ -46,5 +52,10 @@ class EvaluationSettings
     public function getParameters(): array
     {
         return $this->parameters;
+    }
+
+    public function getReturnUrl(): string
+    {
+        return $this->returnUrl;
     }
 }

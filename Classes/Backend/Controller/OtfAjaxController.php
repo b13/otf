@@ -19,6 +19,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Ajax endpoint for generating on-the-fly evaluation hints.
@@ -79,7 +80,11 @@ class OtfAjaxController
             }
             // Call the evaluation service with the current evaluation settings
             $evaluationHint = $evaluationService(
-                new EvaluationSettings($evaluation, $request->getParsedBody())
+                new EvaluationSettings(
+                    $evaluation,
+                    $request->getParsedBody(),
+                    GeneralUtility::sanitizeLocalUrl($request->getParsedBody()['returnUrl'] ?? '')
+                )
             );
             if ($evaluationHint !== null) {
                 // Return the created evaluation hint

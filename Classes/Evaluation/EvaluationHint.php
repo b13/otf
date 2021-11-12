@@ -19,9 +19,29 @@ use TYPO3\CMS\Core\Messaging\AbstractMessage;
  */
 class EvaluationHint extends AbstractMessage
 {
-    public function __construct(string $message, int $severity = self::WARNING)
+    /**
+     * @var bool
+     */
+    protected $markup;
+
+    public function __construct(string $message, int $severity = self::WARNING, bool $markup = false)
     {
         $this->message = $message;
         $this->severity = $severity;
+        $this->markup = $markup;
+    }
+
+    public function hasMarkup(): bool
+    {
+        return $this->markup;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'severity' => $this->getSeverity(),
+            'message' => $this->getMessage(),
+            'markup' => $this->hasMarkup()
+        ];
     }
 }

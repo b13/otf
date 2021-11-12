@@ -9,6 +9,9 @@
 			<trans-unit id="evaluationHint.uniqueInPid" resname="evaluationHint.uniqueInPid">
 				<source>The field has to be unique on this page and will therefore be changed to %s on saving.</source>
 			</trans-unit>
+			<trans-unit id="evaluationHint.editConflictingRecord" resname="evaluationHint.editConflictingRecord">
+				<source>Edit conflicting record [%s]</source>
+			</trans-unit>
 			<trans-unit id="evaluationHint.email" resname="evaluationHint.email">
 				<source>%s is not a valid e-mail address and will therefore be rejected on saving.</source>
 			</trans-unit>

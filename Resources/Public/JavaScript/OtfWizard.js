@@ -15,7 +15,8 @@ define(['TYPO3/CMS/Core/Ajax/AjaxRequest', 'TYPO3/CMS/Backend/Notification', 'TY
           field: this.getAttribute('field') || '',
           uid: this.getAttribute('uid') || '',
           pid: Number(this.getAttribute('pid') || 0),
-          evaluations: this.getAttribute('evaluations') || ''
+          evaluations: this.getAttribute('evaluations') || '',
+          returnUrl: location.href
         };
 
         const customElement = this;
@@ -27,7 +28,11 @@ define(['TYPO3/CMS/Core/Ajax/AjaxRequest', 'TYPO3/CMS/Backend/Notification', 'TY
           } else if (data.evaluationHint) {
             const evaluationHint = document.createElement('span');
             evaluationHint.classList.add('label', 'label-' + Severity.getCssClass(data.evaluationHint.severity));
-            evaluationHint.innerText = data.evaluationHint.message;
+            if (data.evaluationHint.markup) {
+              evaluationHint.innerHTML = data.evaluationHint.message;
+            } else {
+              evaluationHint.innerText = data.evaluationHint.message;
+            }
             customElement.append(evaluationHint);
           }
         }).catch(function () {
