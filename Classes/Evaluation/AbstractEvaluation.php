@@ -20,7 +20,7 @@ abstract class AbstractEvaluation implements EvaluationInterface
     /**
      * @var array
      */
-    protected $supportedEvaluationNames;
+    protected $supportedEvaluationNames = [];
 
     public function canHandle(string $evaluation): bool
     {

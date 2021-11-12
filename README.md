@@ -41,7 +41,7 @@ defined('TYPO3') or die();
 ```
 
 In case you want to add the FieldWizard to a field, which does not yet
-define any supported evaluation, you can simply add the evaluation to
+define any supported evaluation, you can simply add new evaluations to
 the `Field`.
 
 ````php
@@ -52,7 +52,7 @@ defined('TYPO3') or die();
 \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\B13\Otf\Tca\Registry::class)
     ->registerFields(
         new \B13\Otf\Tca\Configuration('fe_users',
-            (new \B13\Otf\Tca\Field('email'))->addEvaluations('email', 'uniqueInPid')
+            (new \B13\Otf\Tca\Field('email'))->addEvaluations('uniqueInPid', 'email')
         )
     );
 ````
