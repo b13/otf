@@ -19,7 +19,8 @@
   "require-dev": {
     "roave/security-advisories": "dev-master",
     "typo3/testing-framework": "^6.1",
-	  "typo3/coding-standards": "^0.4.0"
+    "typo3/coding-standards": "^0.4.0",
+    "phpstan/phpstan": "^0.12.37"
   },
   "config": {
     "vendor-dir": ".Build/vendor",
@@ -36,12 +37,6 @@
     "post-autoload-dump": [
       "TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare",
       "if [ ! -e .Build/Web/vendor ]; then cd .Build/Web  && ln -s ../vendor && cd -; fi"
-    ],
-    "test:unit": [
-      "@php .Build/bin/phpunit -c .Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTests.xml Tests/Unit/"
-    ],
-    "cs": [
-      "@php .Build/bin/php-cs-fixer fix --dry-run --diff --config=.Build/vendor/typo3/coding-standards/templates/extension_php-cs-fixer.dist.php Classes/ Tests/"
     ]
   },
   "autoload": {
