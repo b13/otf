@@ -67,7 +67,11 @@ class Registry
                         unset($evaluations[$key]);
                     }
                 }
-                $tableColumns[$fieldName]['config']['eval'] = implode(',', $evaluations);
+                if ($evaluations === []) {
+                    unset($tableColumns[$fieldName]['config']['eval']);
+                } else {
+                    $tableColumns[$fieldName]['config']['eval'] = implode(',', $evaluations);
+                }
             }
         }
 

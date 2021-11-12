@@ -3,7 +3,8 @@
   "description": "Provides on-the-fly evaluation hints for FormEngine",
   "type": "typo3-cms-extension",
   "homepage": "https://b13.com",
-  "license": ["GPL-2.0-or-later"],
+  "license": "GPL-2.0-or-later",
+  "keywords": ["TYPO3", "FormEngine", "Validation"],
   "authors": [
     {
       "name": "Oliver Bartsch",
@@ -17,21 +18,40 @@
   },
   "require-dev": {
     "roave/security-advisories": "dev-master",
-	"typo3/coding-standards": "^0.4.0"
+    "typo3/testing-framework": "^6.1",
+	  "typo3/coding-standards": "^0.4.0"
+  },
+  "config": {
+    "vendor-dir": ".Build/vendor",
+    "bin-dir": ".Build/bin"
   },
   "extra": {
     "typo3/cms": {
-      "extension-key": "otf"
+      "extension-key": "otf",
+      "cms-package-dir": "{$vendor-dir}/typo3/cms",
+      "web-dir": ".Build/Web"
     }
+  },
+  "scripts": {
+    "post-autoload-dump": [
+      "TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare",
+      "if [ ! -e .Build/Web/vendor ]; then cd .Build/Web  && ln -s ../vendor && cd -; fi"
+    ],
+    "test:unit": [
+      "@php .Build/bin/phpunit -c .Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTests.xml Tests/Unit/"
+    ],
+    "cs": [
+      "@php .Build/bin/php-cs-fixer fix --dry-run --diff --config=.Build/vendor/typo3/coding-standards/templates/extension_php-cs-fixer.dist.php Classes/ Tests/"
+    ]
   },
   "autoload": {
     "psr-4": {
       "B13\\Otf\\": "Classes/"
     }
   },
-  "scripts": {
-	"cs": [
-      "@php vendor/bin/php-cs-fixer fix --dry-run --diff --config=vendor/typo3/coding-standards/templates/extension_php-cs-fixer.dist.php Classes/"
-	]
+  "autoload-dev": {
+    "psr-4": {
+      "B13\\Otf\\Tests\\": "Tests/"
+    }
   }
 }

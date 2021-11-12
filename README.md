@@ -23,8 +23,8 @@ Note: This extension is compatible with TYPO3 v10 and v11.
 
 The FieldWizard can be added to any TCA field of type ``input``.
 
-The following example adds the FieldWizard to the `username` field
-of the TYPO3 `fe_users` table.
+The following example adds the FieldWizard to the `username` and `email`
+fields of the TYPO3 `fe_users` table.
 
 ```php
 <?php
@@ -33,9 +33,10 @@ defined('TYPO3') or die();
 
 \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\B13\Otf\Tca\Registry::class)
     ->registerFields(
-        new \B13\Otf\Tca\Configuration('fe_users', [
-            new \B13\Otf\Tca\Field('username')
-        ])
+        new \B13\Otf\Tca\Configuration('fe_users',
+            new \B13\Otf\Tca\Field('username'),
+            new \B13\Otf\Tca\Field('email')
+        )
     );
 ```
 
@@ -50,14 +51,33 @@ defined('TYPO3') or die();
 
 \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\B13\Otf\Tca\Registry::class)
     ->registerFields(
-        new \B13\Otf\Tca\Configuration('fe_users', [
-            (new \B13\Otf\Tca\Field('email'))->addEvaluations(['email'])
-        ])
+        new \B13\Otf\Tca\Configuration('fe_users',
+            (new \B13\Otf\Tca\Field('email'))->addEvaluations('email', 'uniqueInPid')
+        )
     );
 ````
 
 It's also possible to remove existing evaluations with the
 `->removeEvaluations()` method.
+
+The above examples are for the use in `TCA/Overrides` files. In your own
+TCA, simply add the FieldWizard to your field's configuration directly:
+
+````php
+'aField' => [
+    'label' => 'aField',
+    'config' => [
+        'type' => 'input',
+        'eval' => 'trim,required,unique',
+        'fieldWizard' => [
+            'otfWizard' => [
+                'renderType' => 'otfWizard'
+            ]
+        ]
+    ]
+]
+````
+
 
 ### Supported evaluations
 

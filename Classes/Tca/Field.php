@@ -42,7 +42,7 @@ class Field
         return $this->name;
     }
 
-    public function addEvaluations(array $evaluations): self
+    public function addEvaluations(string ...$evaluations): self
     {
         $this->evaluationsToAdd = array_unique(array_merge($this->evaluationsToAdd, $evaluations));
         return $this;
@@ -53,7 +53,7 @@ class Field
         return $this->evaluationsToAdd;
     }
 
-    public function removeEvaluations(array $evaluations): self
+    public function removeEvaluations(string ...$evaluations): self
     {
         $this->evaluationsToRemove = array_unique(array_merge($this->evaluationsToRemove, $evaluations));
         return $this;

@@ -27,7 +27,7 @@ class Configuration
      */
     protected $fields;
 
-    public function __construct(string $table, array $fields)
+    public function __construct(string $table, Field ...$fields)
     {
         $this->table = $table;
         $this->fields = $fields;

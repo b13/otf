@@ -93,10 +93,10 @@ class UniqueEvaluation extends AbstractEvaluation
 
             if ($conflictingRecordLink) {
                 return new EvaluationHint(
-                    htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.' . $evaluation), $newValue)) .
-                    '<a class="text-white" href="' . htmlspecialchars($this->getEditConflictingRecordLink($table, $conflict, $evaluationSettings->getReturnUrl())) . '">
-                        ' . htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.editConflictingRecord'), $conflict)) . '
-                    </a>',
+                    htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.' . $evaluation), $newValue)) . '&nbsp;' .
+                    '<a href="' . htmlspecialchars($this->getEditConflictingRecordLink($table, $conflict, $evaluationSettings->getReturnUrl())) . '" style="color: #fff">'
+                        . htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.editConflictingRecord'), $conflict)) .
+                    '</a>',
                     EvaluationHint::WARNING,
                     true
                 );
