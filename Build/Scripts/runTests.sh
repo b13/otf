@@ -20,12 +20,14 @@ setUpDockerComposeDotEnv() {
     # Your local home directory for composer and npm caching
     echo "HOST_HOME=${HOME}" >> .env
     # Your local user
-    echo "ROOT_DIR=${ROOT_DIR}" >> .env
+    echo "CORE_ROOT=${CORE_ROOT}" >> .env
     echo "HOST_USER=${USER}" >> .env
     echo "TEST_FILE=${TEST_FILE}" >> .env
     echo "PHP_XDEBUG_ON=${PHP_XDEBUG_ON}" >> .env
     echo "PHP_XDEBUG_PORT=${PHP_XDEBUG_PORT}" >> .env
     echo "DOCKER_PHP_IMAGE=${DOCKER_PHP_IMAGE}" >> .env
+    echo "TYPO3=${TYPO3}" >> .env
+    echo "PHP_VERSION=${PHP_VERSION}" >> .env
     echo "EXTRA_TEST_OPTIONS=${EXTRA_TEST_OPTIONS}" >> .env
     echo "SCRIPT_VERBOSE=${SCRIPT_VERBOSE}" >> .env
     echo "CGLCHECK_DRY_RUN=${CGLCHECK_DRY_RUN}" >> .env
@@ -54,11 +56,14 @@ Options:
             - phpstan: phpstan analyze
             - unit (default): PHP unit tests
 
-    -d <mariadb|mssql|postgres|sqlite>
+    -t <10|11>
+        Only with -s composerUpdate|acceptance|functional
+        TYPO3 core major version the extension is embedded in for testing.
+
+    -d <mariadb|postgres|sqlite>
         Only with -s functional
         Specifies on which DBMS tests are performed
             - mariadb (default): use mariadb
-            - mssql: use mssql microsoft sql server
             - postgres: use postgres
             - sqlite: use sqlite
 
@@ -134,9 +139,9 @@ cd ../testing-docker || exit 1
 # Set core root path by checking whether realpath exists
 if ! command -v realpath &> /dev/null; then
   echo "Consider installing realpath for properly resolving symlinks" >&2
-  CORE_ROOT="${PWD}/../../../"
+  CORE_ROOT="${PWD}/../../"
 else
-  CORE_ROOT=`realpath ${PWD}/../../../`
+  CORE_ROOT=`realpath ${PWD}/../../`
 fi
 
 # Option defaults
@@ -148,6 +153,7 @@ PHP_XDEBUG_PORT=9003
 EXTRA_TEST_OPTIONS=""
 SCRIPT_VERBOSE=0
 CGLCHECK_DRY_RUN=""
+TYPO3="10"
 
 # Option parsing
 # Reset in case getopts has been used previously in the shell
@@ -155,7 +161,7 @@ OPTIND=1
 # Array for invalid options
 INVALID_OPTIONS=();
 # Simple option parsing based on getopts (! not getopt)
-while getopts ":s:d:p:e:xy:nhuv" OPT; do
+while getopts ":s:d:p:e:t:xy:nhuv" OPT; do
     case ${OPT} in
         s)
             TEST_SUITE=${OPTARG}
@@ -165,6 +171,9 @@ while getopts ":s:d:p:e:xy:nhuv" OPT; do
             ;;
         p)
             PHP_VERSION=${OPTARG}
+            ;;
+        t)
+            TYPO3=${OPTARG}
             ;;
         e)
             EXTRA_TEST_OPTIONS=${OPTARG}
@@ -233,7 +242,7 @@ case ${TEST_SUITE} in
     cgl)
         # Active dry-run for cgl needs not "-n" but specific options
         if [[ ! -z ${CGLCHECK_DRY_RUN} ]]; then
-            CGLCHECK_DRY_RUN="--dry-run --diff --diff-format udiff"
+            CGLCHECK_DRY_RUN="--dry-run --diff"
         fi
         setUpDockerComposeDotEnv
         docker-compose run cgl
@@ -259,16 +268,12 @@ case ${TEST_SUITE} in
                 docker-compose run functional_mariadb10
                 SUITE_EXIT_CODE=$?
                 ;;
-            mssql)
-                docker-compose run functional_mssql2019latest
-                SUITE_EXIT_CODE=$?
-                ;;
             postgres)
                 docker-compose run functional_postgres10
                 SUITE_EXIT_CODE=$?
                 ;;
             sqlite)
-                mkdir -p ${ROOT_DIR}/.Build/Web/typo3temp/var/tests/functional-sqlite-dbs/
+                mkdir -p ${CORE_ROOT}/.Build/Web/typo3temp/var/tests/functional-sqlite-dbs/
                 docker-compose run functional_sqlite
                 SUITE_EXIT_CODE=$?
                 ;;

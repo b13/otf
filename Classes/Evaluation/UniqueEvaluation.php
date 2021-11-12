@@ -41,10 +41,10 @@ class UniqueEvaluation extends AbstractEvaluation
     public function __invoke(EvaluationSettings $evaluationSettings): ?EvaluationHint
     {
         $evaluation = $evaluationSettings->getEvaluation();
-        $value = (string)$evaluationSettings->getParameter('value', '');
-        $table = (string)$evaluationSettings->getParameter('table', '');
-        $field = (string)$evaluationSettings->getParameter('field', '');
-        $uid = (int)($evaluationSettings->getParameter('uid', 0));
+        $value = (string)($evaluationSettings->getParameter('value') ?? '');
+        $table = (string)($evaluationSettings->getParameter('table') ?? '');
+        $field = (string)($evaluationSettings->getParameter('field') ?? '');
+        $uid = (int)($evaluationSettings->getParameter('uid') ?? 0);
 
         if ($value === ''
             || !in_array($evaluation, ['unique', 'uniqueInPid'], true)

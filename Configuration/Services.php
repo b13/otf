@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Dashboard;
 
-use B13\Otf\Evaluation\EvaluationPass;
 use B13\Otf\Evaluation\EvaluationInterface;
+use B13\Otf\Evaluation\EvaluationPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 

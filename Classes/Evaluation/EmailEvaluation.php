@@ -24,7 +24,7 @@ class EmailEvaluation extends AbstractEvaluation
 
     public function __invoke(EvaluationSettings $evaluationSettings): ?EvaluationHint
     {
-        $value = (string)$evaluationSettings->getParameter('value', '');
+        $value = (string)($evaluationSettings->getParameter('value') ?? '');
 
         if ($value === '' || GeneralUtility::validEmail($value)) {
             return null;

@@ -21,6 +21,6 @@ class OtfAjaxControllerTest extends FunctionalTestCase
      */
     public function someTest(): void
     {
-        self::assertEquals(true, true);
+        self::assertTrue(true);
     }
 }

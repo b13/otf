@@ -13,15 +13,6 @@ services:
     tmpfs:
       - /var/lib/mysql/:rw,noexec,nosuid
 
-  mssql2019latest:
-    image: typo3/core-testing-mssql2019:latest
-    environment:
-      ACCEPT_EULA: "Y"
-      SA_PASSWORD: "Test1234!"
-      MSSQL_PID: Developer
-    # No tmpfs setup here since mssql fails on tmpfs o_direct.
-    # This makes mssql sloooow for functionals.
-
   postgres10:
     image: postgres:10-alpine
     environment:
@@ -35,13 +26,25 @@ services:
     user: "${HOST_UID}"
     stop_grace_period: 1s
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
     environment:
-      TYPO3_PATH_ROOT: ${ROOT_DIR}/.Build/Web/typo3temp/var/tests/acceptance
-      TYPO3_PATH_APP: ${ROOT_DIR}/.Build/Web/typo3temp/var/tests/acceptance
-    command: php -dxdebug.mode=off -S web:8000 -t ${ROOT_DIR}/.Build/Web
+      TYPO3_PATH_ROOT: ${CORE_ROOT}/.Build/Web/typo3temp/var/tests/acceptance
+      TYPO3_PATH_APP: ${CORE_ROOT}/.Build/Web/typo3temp/var/tests/acceptance
+    command: >
+      /bin/sh -c "
+        if [ ${PHP_XDEBUG_ON} -eq 0 ]; then
+          XDEBUG_MODE=\"off\" \
+          php -S web:8000 -t ${CORE_ROOT}/.Build/Web
+        else
+          DOCKER_HOST=`route -n | awk '/^0.0.0.0/ { print $$2 }'`
+          XDEBUG_MODE=\"debug,develop\" \
+          XDEBUG_TRIGGER=\"foo\" \
+          XDEBUG_CONFIG=\"client_port=${PHP_XDEBUG_PORT} client_host=$${DOCKER_HOST}\" \
+          php -S web:8000 -t ${CORE_ROOT}/.Build/Web
+        fi
+      "
 
   acceptance_backend_mariadb10:
     image: typo3/core-testing-${DOCKER_PHP_IMAGE}:latest
@@ -56,11 +59,11 @@ services:
       typo3DatabasePassword: funcp
       typo3DatabaseHost: mariadb10
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - ${HOST_HOME}:${HOST_HOME}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
-    working_dir: ${ROOT_DIR}/.Build
+    working_dir: ${CORE_ROOT}/.Build
     command: >
       /bin/sh -c "
         if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
@@ -90,11 +93,11 @@ services:
     image: typo3/core-testing-${DOCKER_PHP_IMAGE}:latest
     user: "${HOST_UID}"
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - ${HOST_HOME}:${HOST_HOME}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
-    working_dir: ${ROOT_DIR}
+    working_dir: ${CORE_ROOT}
     command: >
       /bin/sh -c "
         if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
@@ -106,7 +109,7 @@ services:
             .Build/bin/php-cs-fixer fix \
               -v \
               ${CGLCHECK_DRY_RUN} \
-              --config=.Build/vendor/typo3/coding-standards/templates/extension_php_cs.dist \
+              --config=Build/php-cs-fixer.php \
               --using-cache=no .
         else
           DOCKER_HOST=`route -n | awk '/^0.0.0.0/ { print $$2 }'`
@@ -117,7 +120,7 @@ services:
           .Build/bin/php-cs-fixer fix \
             -v \
             ${CGLCHECK_DRY_RUN} \
-            --config=.Build/vendor/typo3/coding-standards/templates/extension_php_cs.dist \
+            --config=Build/php-cs-fixer.php \
             --using-cache=no .
         fi
       "
@@ -126,29 +129,29 @@ services:
     image: typo3/core-testing-${DOCKER_PHP_IMAGE}:latest
     user: "${HOST_UID}"
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - ${HOST_HOME}:${HOST_HOME}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
-    working_dir: ${ROOT_DIR}
+    working_dir: ${CORE_ROOT}
     command: >
       /bin/sh -c "
         if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
           set -x
         fi
         php -v | grep '^PHP';
-        COMPOSER_HOME=${ROOT_DIR}/.Build/.composer composer update --no-progress --no-interaction;
+        COMPOSER_HOME=${CORE_ROOT}/.Build/.composer composer update --no-progress --no-interaction;
       "
 
   composer_validate:
     image: typo3/core-testing-${DOCKER_PHP_IMAGE}:latest
     user: "${HOST_UID}"
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - ${HOST_HOME}:${HOST_HOME}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
-    working_dir: ${ROOT_DIR}
+    working_dir: ${CORE_ROOT}
     command: >
       /bin/sh -c "
         if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
@@ -164,7 +167,7 @@ services:
     links:
       - mariadb10
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - ${HOST_HOME}:${HOST_HOME}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
@@ -173,7 +176,7 @@ services:
       typo3DatabaseUsername: root
       typo3DatabasePassword: funcp
       typo3DatabaseHost: mariadb10
-    working_dir: ${ROOT_DIR}/.Build
+    working_dir: ${CORE_ROOT}/.Build
     command: >
       /bin/sh -c "
         if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
@@ -197,56 +200,13 @@ services:
         fi
       "
 
-  functional_mssql2019latest:
-    image: typo3/core-testing-${DOCKER_PHP_IMAGE}:latest
-    user: "${HOST_UID}"
-    links:
-      - mssql2019latest
-    volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
-      - ${HOST_HOME}:${HOST_HOME}
-      - /etc/passwd:/etc/passwd:ro
-      - /etc/group:/etc/group:ro
-    environment:
-      typo3DatabaseDriver: sqlsrv
-      typo3DatabaseName: func
-      typo3DatabasePassword: "Test1234!"
-      typo3DatabaseUsername: SA
-      typo3DatabasePort: 1433
-      typo3DatabaseCharset: utf-8
-      typo3DatabaseHost: mssql2019latest
-    working_dir: ${ROOT_DIR}/.Build
-    command: >
-      /bin/sh -c "
-        if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
-          set -x
-        fi
-        echo Waiting for database start...;
-        while ! nc -z mssql2019latest 1433; do
-          sleep 1;
-        done;
-        sleep 5;
-        echo Database is up;
-        php -v | grep '^PHP';
-        if [ ${PHP_XDEBUG_ON} -eq 0 ]; then
-          XDEBUG_MODE=\"off\" \
-          bin/phpunit -c Web/typo3conf/ext/otf/Build/FunctionalTests.xml ${EXTRA_TEST_OPTIONS} --exclude-group not-mssql ${TEST_FILE};
-        else
-          DOCKER_HOST=`route -n | awk '/^0.0.0.0/ { print $$2 }'`
-          XDEBUG_MODE=\"debug,develop\" \
-          XDEBUG_TRIGGER=\"foo\" \
-          XDEBUG_CONFIG=\"client_port=${PHP_XDEBUG_PORT} client_host=$${DOCKER_HOST}\" \
-          bin/phpunit -c Web/typo3conf/ext/otf/Build/FunctionalTests.xml ${EXTRA_TEST_OPTIONS} --exclude-group not-mssql ${TEST_FILE};
-        fi
-      "
-
   functional_postgres10:
     image: typo3/core-testing-${DOCKER_PHP_IMAGE}:latest
     user: "${HOST_UID}"
     links:
       - postgres10
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - ${HOST_HOME}:${HOST_HOME}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
@@ -256,7 +216,7 @@ services:
       typo3DatabaseUsername: ${HOST_USER}
       typo3DatabaseHost: postgres10
       typo3DatabasePassword: funcp
-    working_dir: ${ROOT_DIR}/.Build
+    working_dir: ${CORE_ROOT}/.Build
     command: >
       /bin/sh -c "
         if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
@@ -284,15 +244,15 @@ services:
     image: typo3/core-testing-${DOCKER_PHP_IMAGE}:latest
     user: "${HOST_UID}"
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - ${HOST_HOME}:${HOST_HOME}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
     tmpfs:
-      - ${ROOT_DIR}/.Build/Web/typo3temp/var/tests/functional-sqlite-dbs/:rw,noexec,nosuid,uid=${HOST_UID}
+      - ${CORE_ROOT}/.Build/Web/typo3temp/var/tests/functional-sqlite-dbs/:rw,noexec,nosuid,uid=${HOST_UID}
     environment:
       typo3DatabaseDriver: pdo_sqlite
-    working_dir: ${ROOT_DIR}/.Build
+    working_dir: ${CORE_ROOT}/.Build
     command: >
       /bin/sh -c "
         if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
@@ -315,10 +275,10 @@ services:
     image: typo3/core-testing-${DOCKER_PHP_IMAGE}:latest
     user: "${HOST_UID}"
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
-    working_dir: ${ROOT_DIR}
+    working_dir: ${CORE_ROOT}
     command: >
       /bin/sh -c "
         if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
@@ -332,29 +292,29 @@ services:
     image: typo3/core-testing-${DOCKER_PHP_IMAGE}:latest
     user: "${HOST_UID}"
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - ${HOST_HOME}:${HOST_HOME}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
-    working_dir: ${ROOT_DIR}
+    working_dir: ${CORE_ROOT}
     command: >
       /bin/sh -c "
         if [ ${SCRIPT_VERBOSE} -eq 1 ]; then
           set -x
         fi
         php -v | grep '^PHP';
-        php -dxdebug.mode=off .Build/bin/phpstan analyze -c Build/phpstan.neon
+        php -dxdebug.mode=off .Build/bin/phpstan analyze -c Build/phpstan.neon --no-progress --no-interaction
       "
 
   unit:
     image: typo3/core-testing-${DOCKER_PHP_IMAGE}:latest
     user: "${HOST_UID}"
     volumes:
-      - ${ROOT_DIR}:${ROOT_DIR}
+      - ${CORE_ROOT}:${CORE_ROOT}
       - ${HOST_HOME}:${HOST_HOME}
       - /etc/passwd:/etc/passwd:ro
       - /etc/group:/etc/group:ro
-    working_dir: ${ROOT_DIR}/.Build
+    working_dir: ${CORE_ROOT}/.Build
     command: >
       /bin/sh -c "
         if [ ${SCRIPT_VERBOSE} -eq 1 ]; then

@@ -23,7 +23,7 @@ class EvaluationSettings
     protected $evaluation;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $parameters;
 
@@ -44,9 +44,12 @@ class EvaluationSettings
         return $this->evaluation;
     }
 
-    public function getParameter(string $name, $default = null)
+    /**
+     * @return mixed|null
+     */
+    public function getParameter(string $name)
     {
-        return $this->parameters[$name] ?? $default;
+        return $this->parameters[$name] ?? null;
     }
 
     public function getParameters(): array
