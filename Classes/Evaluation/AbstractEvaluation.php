@@ -18,7 +18,7 @@ namespace B13\Otf\Evaluation;
 abstract class AbstractEvaluation implements EvaluationInterface
 {
     /**
-     * @var array
+     * @var string[]
      */
     protected $supportedEvaluationNames = [];
 

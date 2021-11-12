@@ -97,7 +97,7 @@ class OtfWizardTest extends UnitTestCase
      * @test
      * @dataProvider renderTestDataProvider
      */
-    public function renderTest(array $databaseRow, array $fieldConfig, string $expectedOutput)
+    public function renderTest(array $databaseRow, array $fieldConfig, string $expectedOutput): void
     {
         $this->data['databaseRow'] = array_replace_recursive($this->data['databaseRow'], $databaseRow);
         $this->data['processedTca']['columns']['aField']['config'] = array_replace_recursive(

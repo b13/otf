@@ -22,7 +22,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class OtfWizard extends AbstractNode
 {
     /**
-     * @return array Result array
+     * @return array<string, mixed>
      */
     public function render(): array
     {

@@ -1,37 +1,55 @@
 name: tests
-on: [push, pull_request]
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '30 3 * * *'
+
 jobs:
+
     tests:
-        name: Tests with PHP${{ matrix.php }}
-        runs-on: ubuntu-20.04
-        strategy:
-            matrix:
-              php: [7.2, 7.3, 7.4, 8.0]
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v2
+      name: All tests
+      runs-on: ubuntu-20.04
+      strategy:
+        matrix:
+          php: [ '7.2', '7.3', '7.4']
+          TYPO3: [ '10' ]
+          include:
+            - TYPO3: '11'
+              php: '7.4'
+            - TYPO3: '11'
+              php: '8.0'
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: ${{ matrix.php }}
-                  tools: composer:v2
+        - name: Install testing system
+          run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -t ${{ matrix.TYPO3 }} -s composerUpdate
 
-            - name: Get composer cache directory
-              id: composer-cache
-              run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+        - name: Composer validate
+          run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -s composerValidate
 
-            - name: Cache composer dependencies
-              uses: actions/cache@v2
-              with:
-                  path: ${{ steps.composer-cache.outputs.dir }}
-                  key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
-                  restore-keys: ${{ runner.os }}-php-${{ matrix.php }}-composer-
+        - name: Lint PHP
+          run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -s lint
 
-            - name: Install dependencies
-              run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader
+        - name: CGL
+          run: Build/Scripts/runTests.sh -n -p ${{ matrix.php }} -s cgl
 
-            - name: Run Tests
-              run: |
-                  composer test:unit
-                  composer cs
+        - name: phpstan
+          run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -s phpstan
+
+        - name: Unit Tests
+          run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -s unit
+
+        - name: Functional Tests with mariadb
+          run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -t ${{ matrix.TYPO3 }} -d mariadb -s functional
+
+        - name: Functional Tests with postgres
+          run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -t ${{ matrix.TYPO3 }} -d postgres -s functional
+
+        - name: Functional Tests with sqlite
+          run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -t ${{ matrix.TYPO3 }} -d sqlite -s functional
+
+#            - name: Acceptance Tests
+#              run: Build/Scripts/runTests.sh -p ${{ matrix.php }} -t ${{ matrix.TYPO3 }} -s acceptance

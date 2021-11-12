@@ -30,6 +30,8 @@ interface EvaluationInterface
 
     /**
      * Returns the supported evaluation names for this service
+     *
+     * @return string[]
      */
     public function getSupportedEvaluationNames(): array;
 }

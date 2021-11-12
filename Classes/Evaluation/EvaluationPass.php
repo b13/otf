@@ -38,10 +38,11 @@ final class EvaluationPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container): void
     {
-        $evaluationRegistryDefinition = $container->findDefinition(EvaluationRegistry::class);
-        if (!$evaluationRegistryDefinition) {
+        if (!$container->hasDefinition(EvaluationRegistry::class)) {
             return;
         }
+
+        $evaluationRegistryDefinition = $container->getDefinition(EvaluationRegistry::class);
 
         foreach ($container->findTaggedServiceIds($this->tagName) as $serviceName => $tags) {
             $definition = $container->findDefinition($serviceName);
