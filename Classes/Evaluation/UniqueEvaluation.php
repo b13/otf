@@ -18,6 +18,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -210,17 +211,26 @@ class UniqueEvaluation extends AbstractEvaluation
         $record = BackendUtility::getRecord($table, $conflict);
         if ($table === 'pages') {
             $pageLocked = (bool)($record['editlock'] ?? false);
-            $permissions = (new Permission($backendUser->calcPerms($record)))->isGranted(Permission::PAGE_EDIT);
+            $permissions = $this->hasPermissions($backendUser->calcPerms($record), Permission::PAGE_EDIT);
         } else {
             $parentPage = BackendUtility::getRecord('pages', (int)($record['pid'] ?? 0)) ?? [];
             $pageLocked = (bool)($parentPage['editlock'] ?? false);
-            $permissions = $parentPage !== [] && (new Permission($backendUser->calcPerms($parentPage)))->isGranted(Permission::CONTENT_EDIT);
+            $permissions = $parentPage !== [] && $this->hasPermissions($backendUser->calcPerms($record), Permission::CONTENT_EDIT);
         }
 
         return !$pageLocked
             && $permissions
             && $backendUser->check('tables_modify', $table)
             && $backendUser->recordEditAccessInternals($table, $record);
+    }
+
+    protected function hasPermissions(int $calcPerms, int $permission): bool
+    {
+        if (GeneralUtility::makeInstance(Typo3Version::class)->getMajorVersion() < 11) {
+            return ($calcPerms & $permission) === $permission;
+        }
+
+        return (new Permission($calcPerms))->isGranted($permission);
     }
 
     protected function getLanguageService(): LanguageService
