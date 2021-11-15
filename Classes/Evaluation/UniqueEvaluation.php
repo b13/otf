@@ -118,7 +118,7 @@ class UniqueEvaluation extends AbstractEvaluation
         // Check whether the field is configured in TCA and the current eval is included
         if ($table === ''
             || $field === ''
-            || !is_array($GLOBALS['TCA'][$table]['columns'][$field])
+            || !is_array($GLOBALS['TCA'][$table]['columns'][$field] ?? false)
             || !strpos($GLOBALS['TCA'][$table]['columns'][$field]['config']['eval'] ?? '', $evaluation)
         ) {
             return false;

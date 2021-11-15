@@ -111,6 +111,8 @@ class OtfAjaxControllerTest extends FunctionalTestCase
         $response = $this->parseResponse($this->subject->processRequest(
             $this->request->withMethod('POST')->withParsedBody([
                 'value' => 'invalid',
+                'table' => 'fe_users',
+                'field' => 'email',
                 'evaluations' => '{"1":"email"}',
            ])
         ));

@@ -30,7 +30,7 @@ class EmailEvaluation extends AbstractEvaluation
         $field = (string)($evaluationSettings->getParameter('field') ?? '');
 
         if ($value === ''
-            || !is_array($GLOBALS['TCA'][$table]['columns'][$field])
+            || !is_array($GLOBALS['TCA'][$table]['columns'][$field] ?? false)
             || $evaluationSettings->getEvaluation() !== 'email'
             || !strpos($GLOBALS['TCA'][$table]['columns'][$field]['config']['eval'] ?? '', $evaluation)
             || GeneralUtility::validEmail($value)) {
