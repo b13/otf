@@ -17,6 +17,8 @@ use B13\Otf\Evaluation\EvaluationSettings;
 use B13\Otf\Evaluation\UniqueEvaluation;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Core\Bootstrap;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 class UniqueEvaluationTest extends FunctionalTestCase
@@ -27,6 +29,8 @@ class UniqueEvaluationTest extends FunctionalTestCase
     protected $testExtensionsToLoad = [
         'typo3conf/ext/otf'
     ];
+
+    protected $backendUserFixture = ORIGINAL_ROOT . 'typo3conf/ext/otf/Tests/Functional/Fixtures/be_users.xml';
 
     protected function setUp(): void
     {
@@ -141,5 +145,61 @@ class UniqueEvaluationTest extends FunctionalTestCase
             ),
             true
         ];
+    }
+
+    /**
+     * @test
+     */
+    public function editAccessIsCheckedForConflictLink(): void
+    {
+        $GLOBALS['TCA']['sys_category']['columns']['title']['config']['eval'] = 'trim,required,unique';
+
+        $settings = new EvaluationSettings(
+            'unique',
+            ['value' => 'cat', 'table' => 'sys_category', 'field' => 'title', 'uid' => 'NEW123', 'pid' => '0']
+        );
+        $hint = (new UniqueEvaluation($this->getContainer()->get(UriBuilder::class)))($settings);
+
+        // edit access - link is added to the hint
+        self::assertStringContainsString('Edit conflicting record', $hint->getMessage());
+
+        // Now use the non-admin user, which does not have access to pid=0
+        GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable('be_users')
+            ->truncate('be_users');
+        $this->setUpBackendUserFromFixture(2);
+
+        $hint = (new UniqueEvaluation($this->getContainer()->get(UriBuilder::class)))($settings);
+
+        // no edit access - link is NOT added to the hint
+        self::assertStringNotContainsString('Edit conflicting record', $hint->getMessage());
+    }
+
+    /**
+     * @test
+     */
+    public function userTSconfigIsCheckedForConflictLink(): void
+    {
+        $GLOBALS['TCA']['sys_category']['columns']['title']['config']['eval'] = 'trim,required,unique';
+
+        $settings = new EvaluationSettings(
+            'unique',
+            ['value' => 'cat', 'table' => 'sys_category', 'field' => 'title', 'uid' => 'NEW123', 'pid' => '0']
+        );
+        $hint = (new UniqueEvaluation($this->getContainer()->get(UriBuilder::class)))($settings);
+
+        // edit access - link is added to the hint
+        self::assertStringContainsString('Edit conflicting record', $hint->getMessage());
+
+        // Now use a user, which disabled the edit link in user TSconfig
+        GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable('be_users')
+            ->truncate('be_users');
+        $this->setUpBackendUserFromFixture(3);
+
+        $hint = (new UniqueEvaluation($this->getContainer()->get(UriBuilder::class)))($settings);
+
+        // no edit link is added
+        self::assertStringNotContainsString('Edit conflicting record', $hint->getMessage());
     }
 }
