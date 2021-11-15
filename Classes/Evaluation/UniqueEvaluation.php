@@ -150,7 +150,8 @@ class UniqueEvaluation extends AbstractEvaluation
             ->where(
                 $queryBuilder->expr()->eq($field, $queryBuilder->createPositionalParameter($value)),
                 $queryBuilder->expr()->neq('uid', $queryBuilder->createPositionalParameter($uid, \PDO::PARAM_INT))
-            );
+            )
+            ->orderBy('uid');
 
         if (($GLOBALS['TCA'][$table]['columns'][$field]['l10n_mode'] ?? '') === 'exclude'
             && ($GLOBALS['TCA'][$table]['ctrl']['transOrigPointerField'] ?? '') !== ''
