@@ -108,6 +108,9 @@ class OtfAjaxControllerTest extends FunctionalTestCase
      */
     public function processRequestReturnsEvaluationHintForInvalidEmail(): void
     {
+        // @todo Can be removed when v10 support is dropped
+        $GLOBALS['TCA']['fe_users']['columns']['email']['config']['eval'] = 'trim,email';
+
         $response = $this->parseResponse($this->subject->processRequest(
             $this->request->withMethod('POST')->withParsedBody([
                 'value' => 'invalid',

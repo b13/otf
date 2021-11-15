@@ -32,6 +32,9 @@ class EmailEvaluationTest extends FunctionalTestCase
         parent::setUp();
         $this->setUpBackendUserFromFixture(1);
         Bootstrap::initializeLanguageObject();
+
+        // @todo Can be removed when v10 support is dropped
+        $GLOBALS['TCA']['fe_users']['columns']['email']['config']['eval'] = 'trim,email';
     }
 
     /**
