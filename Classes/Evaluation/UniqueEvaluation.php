@@ -230,7 +230,6 @@ class UniqueEvaluation extends AbstractEvaluation
             return ($calcPerms & $permission) === $permission;
         }
 
-        /** @phpstan-ignore-next-line */
         return (new Permission($calcPerms))->isGranted($permission);
     }
 
