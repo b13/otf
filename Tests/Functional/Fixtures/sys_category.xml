@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dataset>
+    <sys_category>
+        <uid>1</uid>
+        <pid>0</pid>
+        <title>cat</title>
+        <deleted>0</deleted>
+        <l10n_parent>0</l10n_parent>
+        <sys_language_uid>0</sys_language_uid>
+    </sys_category>
+    <sys_category>
+        <uid>2</uid>
+        <pid>0</pid>
+        <title>cat</title>
+        <deleted>0</deleted>
+        <l10n_parent>1</l10n_parent>
+        <sys_language_uid>1</sys_language_uid>
+    </sys_category>
+</dataset>

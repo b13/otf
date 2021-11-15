@@ -11,6 +11,9 @@ parameters:
     -
       message: '#Call to an undefined method Prophecy\\Prophecy\\ObjectProphecy::.*#'
       path: %currentWorkingDirectory%/Tests
+    -
+      message: '#Constant ORIGINAL_ROOT not found.#'
+      path: %currentWorkingDirectory%/Tests
     # @todo: These should probably be fixed in core?!
     -
       message: "#^Cannot call method bindValue\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\ResultStatement\\|int\\.$#"
