@@ -19,6 +19,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Type\Bitmask\Permission;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -91,7 +92,7 @@ class UniqueEvaluation extends AbstractEvaluation
             $lang = $this->getLanguageService();
             $conflictingRecordLink = (bool)($this->getBackendUser()->getTSConfig()['tx_otf.']['conflictingRecordLink'] ?? true);
 
-            if ($conflictingRecordLink) {
+            if ($conflictingRecordLink && $this->canBeEdited($table, $conflict)) {
                 return new EvaluationHint(
                     htmlspecialchars(sprintf($lang->sL('LLL:EXT:otf/Resources/Private/Language/locallang.xlf:evaluationHint.' . $evaluation), $newValue)) . '&nbsp;' .
                     '<a href="' . htmlspecialchars($this->getEditConflictingRecordLink($table, $conflict, $evaluationSettings->getReturnUrl())) . '" style="color: #fff">'
@@ -191,6 +192,35 @@ class UniqueEvaluation extends AbstractEvaluation
         }
 
         return (string)$this->uriBuilder->buildUriFromRoute('record_edit', $parameters);
+    }
+
+    protected function canBeEdited(string $table, int $conflict): bool
+    {
+        if ($GLOBALS['TCA'][$table]['ctrl']['readOnly'] ?? false) {
+            return false;
+        }
+        $backendUser = $this->getBackendUser();
+        if ($backendUser->isAdmin()) {
+            return true;
+        }
+        if ($GLOBALS['TCA'][$table]['ctrl']['adminOnly'] ?? false) {
+            return false;
+        }
+
+        $record = BackendUtility::getRecord($table, $conflict);
+        if ($table === 'pages') {
+            $pageLocked = (bool)($record['editlock'] ?? false);
+            $permissions = (new Permission($backendUser->calcPerms($record)))->isGranted(Permission::PAGE_EDIT);
+        } else {
+            $parentPage = BackendUtility::getRecord('pages', (int)($record['pid'] ?? 0)) ?? [];
+            $pageLocked = (bool)($parentPage['editlock'] ?? false);
+            $permissions = $parentPage !== [] && (new Permission($backendUser->calcPerms($parentPage)))->isGranted(Permission::CONTENT_EDIT);
+        }
+
+        return !$pageLocked
+            && $permissions
+            && $backendUser->check('tables_modify', $table)
+            && $backendUser->recordEditAccessInternals($table, $record);
     }
 
     protected function getLanguageService(): LanguageService
