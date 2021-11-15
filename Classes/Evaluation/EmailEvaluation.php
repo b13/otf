@@ -24,9 +24,16 @@ class EmailEvaluation extends AbstractEvaluation
 
     public function __invoke(EvaluationSettings $evaluationSettings): ?EvaluationHint
     {
+        $evaluation = $evaluationSettings->getEvaluation();
         $value = (string)($evaluationSettings->getParameter('value') ?? '');
+        $table = (string)($evaluationSettings->getParameter('table') ?? '');
+        $field = (string)($evaluationSettings->getParameter('field') ?? '');
 
-        if ($value === '' || GeneralUtility::validEmail($value)) {
+        if ($value === ''
+            || !is_array($GLOBALS['TCA'][$table]['columns'][$field])
+            || $evaluationSettings->getEvaluation() !== 'email'
+            || !strpos($GLOBALS['TCA'][$table]['columns'][$field]['config']['eval'] ?? '', $evaluation)
+            || GeneralUtility::validEmail($value)) {
             return null;
         }
 

@@ -20,6 +20,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use TYPO3\CMS\Core\Core\Bootstrap;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\Uri;
@@ -128,7 +129,7 @@ class OtfAjaxControllerTest extends FunctionalTestCase
     public function processRequestReturnsEvaluationHintForUniqueInPid(): void
     {
         $expectedReplacement = 'oli1';
-        $returnUrl = '/typo3/record/edit?params=2';
+        $returnUrl = Environment::getPublicPath() . '/typo3/record/edit?params=2';
 
         $response = $this->parseResponse($this->subject->processRequest(
             $this->request->withMethod('POST')->withParsedBody([
@@ -139,7 +140,7 @@ class OtfAjaxControllerTest extends FunctionalTestCase
                 'pid' => '0',
                 'evaluations' => '{"1":"uniqueInPid"}',
                 'returnUrl' => $returnUrl
-           ])->withUri(new Uri('/typo3/record/edit?param=1'))
+           ])->withUri(new Uri(Environment::getPublicPath() . '/typo3/record/edit?param=1'))
         ));
 
         self::assertEquals(200, $response['statusCode']);
@@ -161,7 +162,7 @@ class OtfAjaxControllerTest extends FunctionalTestCase
     public function processRequestReturnsEvaluationHintForUnique(): void
     {
         $expectedReplacement = 'oli2';
-        $returnUrl = '/typo3/record/edit?params=2';
+        $returnUrl = Environment::getPublicPath() . '/typo3/record/edit?params=2';
 
         $response = $this->parseResponse($this->subject->processRequest(
             $this->request->withMethod('POST')->withParsedBody([
@@ -172,7 +173,7 @@ class OtfAjaxControllerTest extends FunctionalTestCase
                 'pid' => '0',
                 'evaluations' => '{"1":"unique"}',
                 'returnUrl' => $returnUrl
-           ])->withUri(new Uri('/typo3/record/edit?param=1'))
+           ])->withUri(new Uri(Environment::getPublicPath() . '/typo3/record/edit?param=1'))
         ));
 
         self::assertEquals(200, $response['statusCode']);

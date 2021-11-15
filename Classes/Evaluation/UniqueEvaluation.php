@@ -48,7 +48,7 @@ class UniqueEvaluation extends AbstractEvaluation
 
         if ($value === ''
             || !in_array($evaluation, ['unique', 'uniqueInPid'], true)
-            || !$this->canBeEvaluated($table, $field, $uid)
+            || !$this->canBeEvaluated($table, $field, $uid, $evaluation)
         ) {
             return null;
         }
@@ -113,10 +113,14 @@ class UniqueEvaluation extends AbstractEvaluation
     /**
      * Check whether the field can be evaluated
      */
-    protected function canBeEvaluated(string $table, string $field, int $uid): bool
+    protected function canBeEvaluated(string $table, string $field, int $uid, string $evaluation): bool
     {
-        // Check whether the field is configured in TCA
-        if ($table === '' || $field === '' || !is_array($GLOBALS['TCA'][$table]['columns'][$field])) {
+        // Check whether the field is configured in TCA and the current eval is included
+        if ($table === ''
+            || $field === ''
+            || !is_array($GLOBALS['TCA'][$table]['columns'][$field])
+            || !strpos($GLOBALS['TCA'][$table]['columns'][$field]['config']['eval'] ?? '', $evaluation)
+        ) {
             return false;
         }
 

@@ -32,7 +32,7 @@ class EvaluationSettings
      */
     protected $returnUrl;
 
-    public function __construct(string $evaluation, array $parameters, string $returnUrl)
+    public function __construct(string $evaluation, array $parameters, string $returnUrl = '')
     {
         $this->evaluation = $evaluation;
         $this->parameters = $parameters;
