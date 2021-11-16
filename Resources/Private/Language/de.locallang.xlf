@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.2">
+	<file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2021-11-16T13:40:15Z" product-name="otf">
+		<header/>
+		<body>
+			<trans-unit id="evaluationHint.unique" resname="evaluationHint.unique">
+				<source>The field has to be unique and will therefore be changed to %s on saving.</source>
+                <target>Dieses Feld muss eindeutig sein und wird daher beim speichern zu %s geändert.</target>
+			</trans-unit>
+			<trans-unit id="evaluationHint.uniqueInPid" resname="evaluationHint.uniqueInPid">
+				<source>The field has to be unique on this page and will therefore be changed to %s on saving.</source>
+                <target>Dieses Feld muss auf dieser Seite eindeutig sein und wird daher beim speichern zu %s geändert.</target>
+			</trans-unit>
+			<trans-unit id="evaluationHint.editConflictingRecord" resname="evaluationHint.editConflictingRecord">
+				<source>Edit conflicting record [%s]</source>
+                <target>Existierenden Datensatz bearbeiten [%s]</target>
+			</trans-unit>
+			<trans-unit id="evaluationHint.email" resname="evaluationHint.email">
+				<source>%s is not a valid e-mail address and will therefore be rejected on saving.</source>
+				<target>%s ist keine gültige E-Mail-Adresse und wird daher beim speichern abgelehnt.</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
