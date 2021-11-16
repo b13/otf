@@ -20,12 +20,20 @@ define(['TYPO3/CMS/Core/Ajax/AjaxRequest', 'TYPO3/CMS/Backend/Notification', 'TY
         };
 
         const customElement = this;
+        const inputElement = this.inputElement;
 
         (new AjaxRequest(TYPO3.settings.ajaxUrls.form_otf)).post(payload).then(async function (response) {
           const data = await response.resolve();
           if (!data.success) {
             Notification.warning('On-the-fly evaluation failed');
           } else if (data.evaluationHint) {
+            // This is a workaround to prevent the input from being resized to the length of the hint
+            const elementWrapperMaxWidth = inputElement.closest('.form-control-wrap')?.style.maxWidth;
+            const inputWrapper = inputElement.closest('.form-wizards-element');
+            if (elementWrapperMaxWidth && inputWrapper) {
+                inputWrapper.style.maxWidth = elementWrapperMaxWidth;
+            }
+            // Append the hint
             const evaluationHint = document.createElement('span');
             evaluationHint.classList.add('label', 'label-' + Severity.getCssClass(data.evaluationHint.severity));
             if (data.evaluationHint.markup) {
@@ -41,6 +49,12 @@ define(['TYPO3/CMS/Core/Ajax/AjaxRequest', 'TYPO3/CMS/Backend/Notification', 'TY
       }
 
       this.onFocus = () => {
+        // Remove the manually set "max-width" property from the input field wrapper
+        const inputWrapper = this.inputElement.closest('.form-wizards-element');
+        if (inputWrapper && inputWrapper.style.maxWidth) {
+            inputWrapper.style.removeProperty('max-width');
+        }
+        // Remove the hint
         const evaluationHint = this.querySelector('span');
         if (evaluationHint === null) {
           return
