@@ -32,6 +32,8 @@ define(['TYPO3/CMS/Core/Ajax/AjaxRequest', 'TYPO3/CMS/Backend/Notification', 'TY
             const inputWrapper = inputElement.closest('.form-wizards-element');
             if (elementWrapperMaxWidth && inputWrapper) {
                 inputWrapper.style.maxWidth = elementWrapperMaxWidth;
+                // For v10 we also have to set the element to display:block
+                inputWrapper.style.display = 'block';
             }
             // Append the hint
             const evaluationHint = document.createElement('span');
@@ -53,6 +55,7 @@ define(['TYPO3/CMS/Core/Ajax/AjaxRequest', 'TYPO3/CMS/Backend/Notification', 'TY
         const inputWrapper = this.inputElement.closest('.form-wizards-element');
         if (inputWrapper && inputWrapper.style.maxWidth) {
             inputWrapper.style.removeProperty('max-width');
+            inputWrapper.style.removeProperty('display');
         }
         // Remove the hint
         const evaluationHint = this.querySelector('span');
