@@ -8,6 +8,7 @@ parameters:
   checkMissingIterableValueType: false
 
   ignoreErrors:
+    - '#^Parameter \#.* ...\$where of method TYPO3\\CMS\\Core\\Database\\Query\\QueryBuilder::andWhere\(\) expects array\<int,.*string\>\|Doctrine\\DBAL\\Query\\Expression\\CompositeExpression, string given.$#'
     -
       message: '#Call to an undefined method Prophecy\\Prophecy\\ObjectProphecy::.*#'
       path: %currentWorkingDirectory%/Tests
